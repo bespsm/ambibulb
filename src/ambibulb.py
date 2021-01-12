@@ -133,9 +133,9 @@ def action_detector(red_c, green_c, blue_c):
     min_distance = None
     for brightess_clr, positions in brightess_clr_to_positions.items():
         for position in positions:
-            cur_distance = abs(red_c - position[0])
-            cur_distance += abs(green_c - position[1])
-            cur_distance += abs(blue_c - position[2])
+            cur_distance = (red_c - position[0]) ** 2
+            cur_distance += (green_c - position[1]) ** 2
+            cur_distance += (blue_c - position[2]) ** 2
 
             if min_distance is None or cur_distance < min_distance :
                 min_distance = cur_distance
