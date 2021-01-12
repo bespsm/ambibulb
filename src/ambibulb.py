@@ -133,9 +133,9 @@ def action_detector(red_c, green_c, blue_c):
     min_distance = None
     for brightess_clr, positions in brightess_clr_to_positions.items():
         for position in positions:
-            cur_distance = (red_c - position[0]) ** 2
-            cur_distance += (green_c - position[1]) ** 2
-            cur_distance += (blue_c - position[2]) ** 2
+            cur_distance = abs(red_c - position[0])
+            cur_distance += abs(green_c - position[1])
+            cur_distance += abs(blue_c - position[2])
 
             if min_distance is None or cur_distance < min_distance :
                 min_distance = cur_distance
@@ -150,18 +150,19 @@ class LedBulb:
     """
     docstring
     """
-    def __init__(self):
+    def __init__(self, with_white):
         # init values
+        self.with_white = with_white
         self.br_state = 0
         self.off = True
-        self.clr_state = "BLUE"
+        self.clr_state = "RED"
         # initialize with extreme values
-        self.change_state(5, "WHITE")
+        self.change_state(5, "YELLOW")
 
     # def __del__(self):
     #     # body of destructor
 
-    def change_brightnes_cmds(self, new_state):
+    def __change_brightnes_cmds(self, new_state):
         if new_state not in brightness_values:
             raise ValueError("Unexpected value")
         commands = []
@@ -188,7 +189,7 @@ class LedBulb:
             self.br_state = new_state
         return commands
 
-    def change_color_cmds(self, new_state):
+    def __change_color_cmds(self, new_state):
         if new_state not in color_values:
             raise ValueError("Unexpected value")
         commands = []
@@ -198,15 +199,24 @@ class LedBulb:
             self.clr_state = new_state
         return commands
 
+    def __white_clr_check(self, br_state, clr_state):
+        log(INFO, "self.with_white:" + str(self.with_white))
+        log(INFO, "clr_state:" + clr_state)
+        if not self.with_white and clr_state is "WHITE":
+            return 0, "BLACK"
+        else:
+            return br_state, clr_state
 
-    def change_state(self, br_state, clr_state):
+    def change_state(self, new_br_state, new_clr_state):
         codes = []
+        # check with_white option
+        br_state, clr_state = self.__white_clr_check(new_br_state, new_clr_state)
         # get color brightnes cmds
-        codes.extend(self.change_brightnes_cmds(br_state))
-        # if does not come TURN_OFF cmd
+        codes.extend(self.__change_brightnes_cmds(br_state))
+        # if does not come TURN_OFF brightness
         if br_state != 0:
             # get color change cmds
-            codes.extend(self.change_color_cmds(clr_state))
+            codes.extend(self.__change_color_cmds(clr_state))
 
         # there are codes to apply
         if len(codes) != 0:
@@ -245,10 +255,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("source_path", help="path to the source", type=str)
+    parser.add_argument("-w", "--with_white", help="turn on the light if a color is white", action="store_true")
 
     args = parser.parse_args()
     abs_source_path = os.path.abspath(args.source_path)
-    bulb = LedBulb()
+    bulb = LedBulb(args.with_white)
 
     omx = subprocess.Popen(["omxplayer", abs_source_path], text=True)
     cycle_period = 0.3
