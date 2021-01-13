@@ -9,8 +9,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,15 +20,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from logging import *
-from sys import *
+from logging import log, INFO, DEBUG, basicConfig
+from sys import stdout
 import subprocess
 import argparse
 import os
-import signal
 import time
-from datetime import datetime
-import psutil
 from sklearn.cluster import MiniBatchKMeans
 import numpy as np
 from PIL import Image
@@ -157,7 +154,15 @@ class OsramIRLightBulb:
     #     # body of destructor
 
     def __action_detector(self, red_c, green_c, blue_c):
-        log(INFO, "new color: " + str(red_c) + ":" + str(green_c) + ":" + str(blue_c))
+        log(
+            INFO,
+            "new color: "
+            + str(red_c)
+            + ":"
+            + str(green_c)
+            + ":"
+            + str(blue_c),
+        )
 
         brightess = None
         clr = None
@@ -186,17 +191,14 @@ class OsramIRLightBulb:
         commands = []
         if self.br_state != new_state:
             if new_state == 0:
-                if not self.off:
-                    self.off = True
-                    commands.extend(["TURN_OFF"])
-                # else:
-                #     log(INFO,"already turned off")
+                self.off = True
+                commands.extend(["TURN_OFF"])
             else:
                 if self.off:
                     self.off = False
                     commands.extend(["TURN_ON"])
                 diff = self.br_state - new_state
-                for i in range(abs(diff)):
+                for _ in range(abs(diff)):
                     if diff < 0:
                         commands.extend(["HIGHER"])
                     else:
@@ -225,14 +227,20 @@ class OsramIRLightBulb:
     def change_state(self, red_c, green_c, blue_c):
         action_tic = time.perf_counter()
         # detect required BULB state changes
-        new_br_state, new_clr_state = self.__action_detector(red_c, green_c, blue_c)
+        new_br_state, new_clr_state = self.__action_detector(
+            red_c, green_c, blue_c
+        )
         action_toc = time.perf_counter()
         log(
-            INFO, "action detection time: " + "{:10.4f}".format(action_toc - action_tic)
+            INFO,
+            "action detection time: "
+            + "{:10.4f}".format(action_toc - action_tic),
         )
         codes = []
         # check with_white option
-        br_state, clr_state = self.__white_clr_check(new_br_state, new_clr_state)
+        br_state, clr_state = self.__white_clr_check(
+            new_br_state, new_clr_state
+        )
         # get color brightnes cmds
         codes.extend(self.__change_brightnes_cmds(br_state))
         # if does not come TURN_OFF brightness
@@ -248,7 +256,10 @@ class OsramIRLightBulb:
             # apply changes
             subprocess.run(terminal_cmd)
         send_tic = time.perf_counter()
-        log(INFO, "send actions time: " + "{:10.4f}".format(send_tic - action_toc))
+        log(
+            INFO,
+            "send actions time: " + "{:10.4f}".format(send_tic - action_toc),
+        )
 
 
 def get_dominant_clr(img_path):
@@ -256,19 +267,26 @@ def get_dominant_clr(img_path):
     image_open_tic = time.perf_counter()
     img1 = Image.open(img_path)
     image_open_toc = time.perf_counter()
-    log(INFO, "image open time: " + "{:10.4f}".format(image_open_toc - image_open_tic))
+    log(
+        INFO,
+        "image open time: "
+        + "{:10.4f}".format(image_open_toc - image_open_tic),
+    )
 
     # resize image
     img1.thumbnail((400, 400), Image.BICUBIC)
     image_resize_tic = time.perf_counter()
     log(
         INFO,
-        "image resize time: " + "{:10.4f}".format(image_resize_tic - image_open_toc),
+        "image resize time: "
+        + "{:10.4f}".format(image_resize_tic - image_open_toc),
     )
 
     im = np.array(img1)
     img = im.reshape((im.shape[0] * im.shape[1], 3))
-    clt = MiniBatchKMeans(n_clusters=1, max_iter=10, verbose=0, compute_labels=False)
+    clt = MiniBatchKMeans(
+        n_clusters=1, max_iter=10, verbose=0, compute_labels=False
+    )
     clt.fit(img)
     out = clt.cluster_centers_.astype("uint8")
     dominant_color_toc = time.perf_counter()
@@ -318,20 +336,25 @@ if __name__ == "__main__":
             screenshot.close()
 
             screen_toc = time.perf_counter()
-            log(INFO, "screenshot time: " + "{:10.4f}".format(screen_toc - screen_tic))
+            log(
+                INFO,
+                "screenshot time: "
+                + "{:10.4f}".format(screen_toc - screen_tic),
+            )
 
             color_r, color_g, color_b = get_dominant_clr(screenshot_path)
 
             color_tic = time.perf_counter()
             log(
                 INFO,
-                "color detection time: " + "{:10.4f}".format(color_tic - screen_toc),
+                "color detection time: "
+                + "{:10.4f}".format(color_tic - screen_toc),
             )
 
             bulb.change_state(color_r, color_g, color_b)
 
             # check if omxplayer is exit()
-            if omx.poll() != None:
+            if omx.poll() is not None:
                 exit()
 
             new_state_tic = time.perf_counter()
