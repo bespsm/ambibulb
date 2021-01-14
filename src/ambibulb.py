@@ -299,24 +299,39 @@ def get_dominant_clr(img_path):
 
 
 if __name__ == "__main__":
-    basicConfig(stream=stdout, level=DEBUG)
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("source_path", help="path to the source", type=str)
+    parser.add_argument("media_path", help="path to media file", type=str)
     parser.add_argument(
         "-w",
         "--with_white",
-        help="turn on the light if a color is white",
-        action="store_true",
+        help="use white light in the algoritm",
+        action="store_true"
     )
-
+    parser.add_argument(
+        "-c",
+        "--cycle_period",
+        help="min period color changing, sec. (Default = 0.5 sec)",
+        type=float,
+        default=0.5
+    )
+    parser.add_argument(
+        "-v",
+        "--verbosity",
+        help="show timing steps",
+        action="store_true"
+    )
     args = parser.parse_args()
-    abs_source_path = os.path.abspath(args.source_path)
+
+    if args.verbosity:
+        basicConfig(stream=stdout, level=DEBUG)
+
+    abs_media_path = os.path.abspath(args.media_path)
     bulb = OsramIRLightBulb(args.with_white)
 
-    omx = subprocess.Popen(["omxplayer", abs_source_path], text=True)
-    cycle_period = 0.6
+    cycle_period = args.cycle_period
     cycle_period_now = 0.0
+
+    omx = subprocess.Popen(["omxplayer", abs_media_path], text=True)
     try:
         while True:
             # wait if current cycle period is less then defined
