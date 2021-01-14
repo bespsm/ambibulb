@@ -147,8 +147,7 @@ class OsramIRLightBulb:
         self.br_state = 0
         self.off = True
         self.clr_state = "PURPLE"
-        # initialize with extreme values
-        # self.change_state(5, "YELLOW")
+        self.sender_proc = None
 
     # def __del__(self):
     #     # body of destructor
@@ -253,8 +252,11 @@ class OsramIRLightBulb:
             terminal_cmd = ["irsend", "SEND_ONCE", "RGBLED"]
             terminal_cmd.extend(codes)
             log(DEBUG, "codes: " + " ".join(map(str, terminal_cmd)))
-            # apply changes
-            subprocess.run(terminal_cmd)
+            # wait prev. process to finish
+            if self.sender_proc is not None:
+                self.sender_proc.communicate()
+            # send new ir changes
+            self.sender_proc = subprocess.Popen(terminal_cmd)
         send_tic = time.perf_counter()
         log(
             INFO,
