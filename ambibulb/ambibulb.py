@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 # MIT License
 
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
