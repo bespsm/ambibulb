@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ambibulb",
-    version="0.0.3",
+    version="0.0.4rc1",
     author="Sergey B",
     license="MIT",
     author_email="dkc.sergey.88@hotmail.com",
@@ -21,12 +21,15 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
     ],
     install_requires=[
-        "joblib>=1.0.0",
-        "numpy>=1.19.4",
-        "Pillow>=8.0.1",
+        "joblib>=0.11",
+        "numpy>=1.3.13",
+        "scipy>=0.19.1",
+        "threadpoolctl>=2.0.0",
         "scikit-learn>=0.23.2",
-        "scipy>=1.6.0",
-        "threadpoolctl>=2.1.0"
-      ],
+        "Pillow>=8.0.0",
+    ],
+    entry_points = {
+        'console_scripts': ['ambibulb=ambibulb.__main__:main'],
+    },
     python_requires=">=3.7",
 )
