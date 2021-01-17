@@ -4,16 +4,39 @@
 
 
 from . import EightyStateIRLightBulb, get_dominant_clr
-from logging import log, INFO, DEBUG, basicConfig
+from logging import log, INFO, DEBUG, ERROR, basicConfig
 import argparse
 import os
 from sys import stdout
 import subprocess
 import time
+import shutil
+
+omxplayer_exe = "omxplayer"
+screenshot_exe = "screenshot"
+irsend_exe = "irsend"
 
 
 def main():
     """ambibulb execution entry point."""
+    # check if all dependencies installed
+    if (
+        shutil.which(omxplayer_exe) is None
+        or shutil.which(screenshot_exe) is None
+        or shutil.which(irsend_exe) is None
+    ):
+        log(
+            ERROR,
+            "one or more following dependencies are not installed: "
+            + omxplayer_exe
+            + " "
+            + screenshot_exe
+            + " "
+            + irsend_exe
+        )
+        return
+
+    # parse input arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("media_path", help="path to media file", type=str)
     parser.add_argument(
@@ -50,7 +73,7 @@ def main():
     cycle_period = args.cycle_period
     cycle_period_now = 0.0
 
-    omx = subprocess.Popen(["omxplayer", abs_media_path], text=True)
+    omx = subprocess.Popen([omxplayer_exe, abs_media_path], text=True)
     try:
         while True:
             # wait if current cycle period is less then defined
@@ -63,7 +86,7 @@ def main():
 
             # take a screenshot of dispaly and save in RAM
             log(INFO, "_____________________")
-            scr = subprocess.Popen(["screenshot"], stdout=subprocess.PIPE)
+            scr = subprocess.Popen([screenshot_exe], stdout=subprocess.PIPE)
             shot = scr.communicate()[0]
             screenshot_path = "/tmp/screen.jpg"
             screenshot = open(screenshot_path, "wb")
