@@ -13,9 +13,7 @@ import time
 
 
 def main():
-    """ambibulb execution entry point.
-
-    """
+    """ambibulb execution entry point."""
     parser = argparse.ArgumentParser()
     parser.add_argument("media_path", help="path to media file", type=str)
     parser.add_argument(
@@ -34,13 +32,20 @@ def main():
     parser.add_argument(
         "-v", "--verbosity", help="show timing steps", action="store_true"
     )
+    parser.add_argument(
+        "-l",
+        "--lirc_conf",
+        help="lirc config name (Default = 'RGBLED')",
+        type=str,
+        default="RGBLED",
+    )
     args = parser.parse_args()
 
     if args.verbosity:
         basicConfig(stream=stdout, level=DEBUG)
 
     abs_media_path = os.path.abspath(args.media_path)
-    bulb = EightyStateIRLightBulb(args.with_white)
+    bulb = EightyStateIRLightBulb(args.with_white, args.lirc_conf)
 
     cycle_period = args.cycle_period
     cycle_period_now = 0.0

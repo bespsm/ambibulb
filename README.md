@@ -33,7 +33,7 @@ simple run:
  ```
 all options:
 ```
-usage: ambibulb [-h] [-w] [-c CYCLE_PERIOD] [-v] media_path
+usage: ambibulb [-h] [-w] [-c CYCLE_PERIOD] [-v] [-l LIRC_CONF] media_path
 
 positional arguments:
   media_path            path to media file
@@ -44,5 +44,7 @@ optional arguments:
   -c CYCLE_PERIOD, --cycle_period CYCLE_PERIOD
                         min period color changing, sec. (Default = 0.5 sec)
   -v, --verbosity       show timing steps
+  -l LIRC_CONF, --lirc_conf LIRC_CONF
+                        lirc config name (Default = 'RGBLED')
 ```
 All *omxplayer* keyboard shortcuts are avaliable during ambibulb execution.
