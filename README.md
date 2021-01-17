@@ -7,7 +7,7 @@
 ### HARDWARE
 * Raspberry PI (tested on 3B+)
 * HDMI output (TV, projector, display)
-* RGB LED light bulb with IR remote control (supported 17 colors light bulb with 5 levels of brightness)
+* RGB LED light bulb with IR remote control (supports 16 colors and 5 levels of brightness)
 * IR transmitter (tested on KY-005)
 * IR receiver(tested on KY-022, optional)
 * wiring
@@ -17,23 +17,23 @@
 * lirc
 * omxplayer
 * [info-beamer screenshot util](https://github.com/info-beamer/tools/tree/master/screenshot)
-* python3, pip and the modules in *requirements.txt* (recommened to use venv)
+* pip packeges in *requirements.txt* (installed automatically)
 
 ### SETUP
 1. Install Raspberry PI OS on your [SD card](https://www.raspberrypi.org/documentation/installation/installing-images/)
 2. Build and install all software dependecies
 3. Connect and set up your IR transmitter to [RPI](https://gist.github.com/prasanthj/c15a5298eb682bde34961c322c95378b)
-    - if you can not find [config file](http://lirc-remotes.sourceforge.net/remotes-table.html) for you IR control device, record it with [IR transmitter](https://gist.github.com/prasanthj/c15a5298eb682bde34961c322c95378b). My lirc config is stored [here](conf/osram-led-bulb.conf)
-4. Copy to RPI and run the [script](src/ambibulb.py)
+    - if you couldn't find [config file](http://lirc-remotes.sourceforge.net/remotes-table.html) for you IR control device, record it with [IR transmitter](https://gist.github.com/prasanthj/c15a5298eb682bde34961c322c95378b). My lirc config is stored [here](conf/osram-led-bulb.conf)
+4. **pip3 install ambibulb** (recommended to install in venv)
 
 ### RUN OPTIONS
 simple run:
 ```
- $ python3 ./ambibulb.py demo.mp4
+ $ ambibulb demo.mp4
  ```
 all options:
 ```
-usage: ambibulb.py [-h] [-w] [-c CYCLE_PERIOD] [-v] media_path
+usage: ambibulb [-h] [-w] [-c CYCLE_PERIOD] [-v] media_path
 
 positional arguments:
   media_path            path to media file
@@ -45,3 +45,4 @@ optional arguments:
                         min period color changing, sec. (Default = 0.5 sec)
   -v, --verbosity       show timing steps
 ```
+All *omxplayer* keyboard shortcuts are avaliable during ambibulb execution.
