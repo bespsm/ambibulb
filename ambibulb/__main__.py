@@ -3,7 +3,7 @@
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
 
 
-from . import OsramIRLightBulb, get_dominant_clr
+from . import EightyStateIRLightBulb, get_dominant_clr
 from logging import log, INFO, DEBUG, basicConfig
 import argparse
 import os
@@ -13,6 +13,9 @@ import time
 
 
 def main():
+    """ambibulb execution entry point.
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("media_path", help="path to media file", type=str)
     parser.add_argument(
@@ -37,7 +40,7 @@ def main():
         basicConfig(stream=stdout, level=DEBUG)
 
     abs_media_path = os.path.abspath(args.media_path)
-    bulb = OsramIRLightBulb(args.with_white)
+    bulb = EightyStateIRLightBulb(args.with_white)
 
     cycle_period = args.cycle_period
     cycle_period_now = 0.0
@@ -53,6 +56,7 @@ def main():
 
             screen_tic = time.perf_counter()
 
+            # take a screenshot of dispaly and save in RAM
             log(INFO, "_____________________")
             scr = subprocess.Popen(["screenshot"], stdout=subprocess.PIPE)
             shot = scr.communicate()[0]
@@ -68,6 +72,7 @@ def main():
                 + "{:10.4f}".format(screen_toc - screen_tic),
             )
 
+            # calculate dominant color
             color_r, color_g, color_b = get_dominant_clr(screenshot_path)
 
             color_tic = time.perf_counter()
@@ -77,6 +82,7 @@ def main():
                 + "{:10.4f}".format(color_tic - screen_toc),
             )
 
+            # change curent light bulb state
             bulb.change_state(color_r, color_g, color_b)
 
             # check if omxplayer is exit()
@@ -87,5 +93,6 @@ def main():
             cycle_period_now = new_state_tic - screen_tic
 
     except KeyboardInterrupt:
+        # finish omxplayer if terminanted
         log(INFO, "finishing...")
         omx.communicate(input="q", timeout=3)

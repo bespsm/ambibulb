@@ -10,9 +10,24 @@ import numpy as np
 from PIL import Image
 
 
-class OsramIRLightBulb:
-    """
-    docstring
+class EightyStateIRLightBulb:
+    """Class holds color state of IR light bulb.
+
+    This class holds and changes light state of a LED RBG bulb.
+    The changinng happend based on input color (RGB position).
+    Algoritm calculates the shortest distance amonhg 80
+    possible light bulb color states and input color on RGB plane.
+
+    Attributes:
+        brightess_clr_to_positions: dict among the light bulb color states
+            and appropriate points on RGB plane.
+        brightness_values: possible values of brightess parameter for irsend.
+        color_values: possible values of brightess parameter for irsend.
+        with_white: the flag defines if white color will be used.
+        br_state: current brightess state of the light bulb.
+        off: the flag defines if the light bulb is OFF.
+        clr_state: current color state of the light bulb.
+        sender_proc: irsend process execution object.
     """
 
     brightess_clr_to_positions = {
@@ -121,17 +136,30 @@ class OsramIRLightBulb:
     )
 
     def __init__(self, with_white):
-        # init values
+        """Initialize the instance of the class.
+
+        To syncronize real light bulb color state,
+            initialized with border parameters.
+
+        Args:
+            with_white: the flag defines if white color will be used.
+        """
         self.with_white = with_white
         self.br_state = 0
         self.off = True
         self.clr_state = "PURPLE"
         self.sender_proc = None
 
-    # def __del__(self):
-    #     # body of destructor
-
     def __action_detector(self, red_c, green_c, blue_c):
+        """calculates required color and brightness.
+
+        Args:
+            red_c: input red color position.
+            green_c: input green color position.
+            blue_c: input blue color position.
+        Returns:
+            tuple(int, str): required color and brightness states.
+        """
         log(
             INFO,
             "new color: "
@@ -148,7 +176,7 @@ class OsramIRLightBulb:
         for (
             brightess_clr,
             positions,
-        ) in OsramIRLightBulb.brightess_clr_to_positions.items():
+        ) in EightyStateIRLightBulb.brightess_clr_to_positions.items():
             for position in positions:
                 cur_distance = (red_c - position[0]) ** 2
                 cur_distance += (green_c - position[1]) ** 2
@@ -164,7 +192,14 @@ class OsramIRLightBulb:
         return brightess, clr
 
     def __change_brightnes_cmds(self, new_state):
-        if new_state not in OsramIRLightBulb.brightness_values:
+        """generates irsend commands to change brightness state.
+
+        Args:
+            new_state: required brightness state to change.
+        Returns:
+            set(str): commands to change the brightness.
+        """
+        if new_state not in EightyStateIRLightBulb.brightness_values:
             raise ValueError("Unexpected value")
         commands = []
         if self.br_state != new_state:
@@ -186,7 +221,14 @@ class OsramIRLightBulb:
         return commands
 
     def __change_color_cmds(self, new_state):
-        if new_state not in OsramIRLightBulb.color_values:
+        """generates irsend commands to change color state.
+
+        Args:
+            new_state: required color state to change.
+        Returns:
+            set(str): commands to change the color.
+        """
+        if new_state not in EightyStateIRLightBulb.color_values:
             raise ValueError("Unexpected value")
         commands = []
         if self.clr_state != new_state and new_state != "BLACK":
@@ -196,6 +238,15 @@ class OsramIRLightBulb:
         return commands
 
     def __white_clr_check(self, br_state, clr_state):
+        """replace required color and brightness states
+            if white color is not used.
+
+        Args:
+            br_state: required brightness state.
+            clr_state: required color state.
+        Returns:
+            tuple(int, str): fixed color and brightness states.
+        """
         if not self.with_white and clr_state == "WHITE":
             log(INFO, "no_white mode is ON")
             return 0, "BLACK"
@@ -203,6 +254,13 @@ class OsramIRLightBulb:
             return br_state, clr_state
 
     def change_state(self, red_c, green_c, blue_c):
+        """changes the current state of the LED RBG bulb.
+
+        Args:
+            red_c: input red color position.
+            green_c: input green color position.
+            blue_c: input blue color position.
+        """
         action_tic = time.perf_counter()
         # detect required BULB state changes
         new_br_state, new_clr_state = self.__action_detector(
@@ -244,9 +302,16 @@ class OsramIRLightBulb:
 
 
 def get_dominant_clr(img_path):
+    """calculates dominant color of input image path.
 
+    Args:
+        img_path: input image path.
+    Returns:
+        tuple(int, int, int): position of dominant color on RGB plane.
+    """
+    # open image
     image_open_tic = time.perf_counter()
-    img1 = Image.open(img_path)
+    opened_image = Image.open(img_path)
     image_open_toc = time.perf_counter()
     log(
         INFO,
@@ -255,7 +320,7 @@ def get_dominant_clr(img_path):
     )
 
     # resize image
-    img1.thumbnail((400, 400), Image.BICUBIC)
+    opened_image.thumbnail((400, 400), Image.BICUBIC)
     image_resize_tic = time.perf_counter()
     log(
         INFO,
@@ -263,17 +328,22 @@ def get_dominant_clr(img_path):
         + "{:10.4f}".format(image_resize_tic - image_open_toc),
     )
 
-    im = np.array(img1)
-    img = im.reshape((im.shape[0] * im.shape[1], 3))
+    # reshape image to 1-dimensional array
+    np_image = np.array(opened_image)
+    reshaped_image = np_image.reshape(
+        (np_image.shape[0] * np_image.shape[1], 3)
+    )
+
+    # calculate dominant color
     clt = MiniBatchKMeans(
         n_clusters=1, max_iter=10, verbose=0, compute_labels=False
     )
-    clt.fit(img)
-    out = clt.cluster_centers_.astype("uint8")
+    clt.fit(reshaped_image)
+    dominant = clt.cluster_centers_.astype("uint8")
     dominant_color_toc = time.perf_counter()
     log(
         INFO,
         "dominant color time: "
         + "{:10.4f}".format(dominant_color_toc - image_resize_tic),
     )
-    return out[0][0], out[0][1], out[0][2]
+    return dominant[0][0], dominant[0][1], dominant[0][2]
