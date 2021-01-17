@@ -32,7 +32,7 @@ def main():
             + " "
             + screenshot_exe
             + " "
-            + irsend_exe
+            + irsend_exe,
         )
         return
 
@@ -48,9 +48,9 @@ def main():
     parser.add_argument(
         "-c",
         "--cycle_period",
-        help="min period color changing, sec. (Default = 0.5 sec)",
+        help="min period color changing, sec. (Default = 0.4 sec)",
         type=float,
-        default=0.5,
+        default=0.4,
     )
     parser.add_argument(
         "-v", "--verbosity", help="show timing steps", action="store_true"
@@ -79,7 +79,6 @@ def main():
             # wait if current cycle period is less then defined
             sleep_time = cycle_period - cycle_period_now
             if (sleep_time) > 0.0:
-                log(INFO, "sleep for sec.: " + "{:10.4f}".format(sleep_time))
                 time.sleep(sleep_time)
 
             screen_tic = time.perf_counter()
@@ -112,6 +111,10 @@ def main():
 
             new_state_tic = time.perf_counter()
             cycle_period_now = new_state_tic - screen_tic
+            log(
+                INFO,
+                "cycle time: " + "{:10.4f}".format(cycle_period_now),
+            )
 
     except KeyboardInterrupt:
         # finish omxplayer if terminanted

@@ -325,7 +325,7 @@ def get_dominant_clr(img_path):
     )
 
     # resize image
-    opened_image.thumbnail((400, 400), Image.BICUBIC)
+    opened_image.thumbnail((350, 350), Image.BICUBIC)
     image_resize_tic = time.perf_counter()
     log(
         INFO,
@@ -341,7 +341,7 @@ def get_dominant_clr(img_path):
 
     # calculate dominant color
     clt = MiniBatchKMeans(
-        n_clusters=1, max_iter=10, verbose=0, compute_labels=False
+        n_clusters=1, max_iter=10, verbose=0, compute_labels=False, tol=0.5
     )
     clt.fit(reshaped_image)
     dominant = clt.cluster_centers_.astype("uint8")

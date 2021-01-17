@@ -42,7 +42,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -w, --with_white      use white light in the algoritm
   -c CYCLE_PERIOD, --cycle_period CYCLE_PERIOD
-                        min period color changing, sec. (Default = 0.5 sec)
+                        min period color changing, sec. (Default = 0.4 sec)
   -v, --verbosity       show timing steps
   -l LIRC_CONF, --lirc_conf LIRC_CONF
                         lirc config name (Default = 'RGBLED')
