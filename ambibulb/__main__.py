@@ -103,13 +103,6 @@ def main():
             # calculate dominant color
             color_r, color_g, color_b = get_dominant_clr(screenshot_path)
 
-            color_tic = time.perf_counter()
-            log(
-                INFO,
-                "color detection time: "
-                + "{:10.4f}".format(color_tic - screen_toc),
-            )
-
             # change curent light bulb state
             bulb.change_state(color_r, color_g, color_b)
 
