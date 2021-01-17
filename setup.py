@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ambibulb",
-    version="0.0.4rc1",
+    version="0.0.4rc2",
     author="Sergey B",
     license="MIT",
     author_email="dkc.sergey.88@hotmail.com",
