@@ -146,10 +146,27 @@ class EightyStateIRLightBulb:
             with_white: the flag defines if white color will be used.
             lirc_conf: lirc config name.
         """
-        self.with_white = with_white
-        self.br_state = 0
-        self.off = True
-        self.clr_state = "PURPLE"
+
+        self.init_brightess_clr_to_positions = (
+            EightyStateIRLightBulb.brightess_clr_to_positions
+        )
+
+        # remove white color points
+        if not with_white:
+            keys_to_remove = [
+                (5, "WHITE"),
+                (4, "WHITE"),
+                (3, "WHITE"),
+                (2, "WHITE"),
+                (1, "WHITE"),
+            ]
+            for key_to_remove in keys_to_remove:
+                if key_to_remove in self.init_brightess_clr_to_positions:
+                    del self.init_brightess_clr_to_positions[key_to_remove]
+
+        self.br_state = 5
+        self.off = False
+        self.clr_state = "WHITE"
         self.sender_proc = None
         self.lirc_conf = lirc_conf
 
@@ -179,7 +196,7 @@ class EightyStateIRLightBulb:
         for (
             brightess_clr,
             positions,
-        ) in EightyStateIRLightBulb.brightess_clr_to_positions.items():
+        ) in self.init_brightess_clr_to_positions.items():
             for position in positions:
                 cur_distance = (red_c - position[0]) ** 2
                 cur_distance += (green_c - position[1]) ** 2
@@ -240,22 +257,6 @@ class EightyStateIRLightBulb:
             self.clr_state = new_state
         return commands
 
-    def __white_clr_check(self, br_state, clr_state):
-        """replace required color and brightness states
-            if white color is not used.
-
-        Args:
-            br_state: required brightness state.
-            clr_state: required color state.
-        Returns:
-            tuple(int, str): fixed color and brightness states.
-        """
-        if not self.with_white and clr_state == "WHITE":
-            log(INFO, "no_white mode is ON")
-            return 0, "BLACK"
-        else:
-            return br_state, clr_state
-
     def change_state(self, red_c, green_c, blue_c):
         """changes the current state of the LED RBG bulb.
 
@@ -276,16 +277,12 @@ class EightyStateIRLightBulb:
             + "{:10.4f}".format(action_toc - action_tic),
         )
         codes = []
-        # check with_white option
-        br_state, clr_state = self.__white_clr_check(
-            new_br_state, new_clr_state
-        )
         # get color brightnes cmds
-        codes.extend(self.__change_brightnes_cmds(br_state))
+        codes.extend(self.__change_brightnes_cmds(new_br_state))
         # if does not come TURN_OFF brightness
-        if br_state != 0:
+        if new_br_state != 0:
             # get color change cmds
-            codes.extend(self.__change_color_cmds(clr_state))
+            codes.extend(self.__change_color_cmds(new_clr_state))
 
         # there are codes to apply
         if len(codes) != 0:
