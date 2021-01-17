@@ -164,6 +164,7 @@ class EightyStateIRLightBulb:
                 if key_to_remove in self.init_brightess_clr_to_positions:
                     del self.init_brightess_clr_to_positions[key_to_remove]
 
+        # initial bulb state
         self.br_state = 5
         self.off = False
         self.clr_state = "WHITE"
@@ -222,21 +223,23 @@ class EightyStateIRLightBulb:
         if new_state not in EightyStateIRLightBulb.brightness_values:
             raise ValueError("Unexpected value")
         commands = []
-        if self.br_state != new_state:
-            if new_state == 0:
-                self.off = True
-                commands.extend(["TURN_OFF"])
-            else:
-                if self.off:
-                    self.off = False
-                    commands.extend(["TURN_ON"])
-                diff = self.br_state - new_state
-                for _ in range(abs(diff)):
-                    if diff < 0:
-                        commands.extend(["HIGHER"])
-                    else:
-                        commands.extend(["LOWER"])
-                log(INFO, "new brightnes state: " + str(new_state))
+        # control off-on parameter
+        if new_state == 0 and self.off == False:
+            self.off = True
+            commands.extend(["TURN_OFF"])
+        elif new_state != 0 and self.off == True:
+            self.off = False
+            commands.extend(["TURN_ON"])
+
+        # control brightness level parameter
+        if self.br_state != new_state and self.off == False:
+            diff = self.br_state - new_state
+            for _ in range(abs(diff)):
+                if diff < 0:
+                    commands.extend(["HIGHER"])
+                else:
+                    commands.extend(["LOWER"])
+            log(INFO, "new brightnes state: " + str(new_state))
             self.br_state = new_state
         return commands
 
