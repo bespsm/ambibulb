@@ -1,3 +1,8 @@
 .vscode/*
 *.pyc
 *.pyo
+build/
+dist/
+src/build/
+*.so
+*.o
