@@ -16,7 +16,6 @@
 * Raspberry Pi OS (10 buster, headless work as well)
 * lirc
 * omxplayer
-* [info-beamer screenshot util](https://github.com/info-beamer/tools/tree/master/screenshot)
 * pip packeges in *requirements.txt* (installed automatically)
 
 ### SETUP
