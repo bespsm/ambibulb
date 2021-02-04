@@ -11,9 +11,9 @@ from sys import stdout
 import subprocess
 import time
 import shutil
+from .snapshot_bcm import ffi, lib
 
 omxplayer_exe = "omxplayer"
-screenshot_exe = "screenshot"
 irsend_exe = "irsend"
 
 
@@ -22,15 +22,12 @@ def main():
     # check if all dependencies installed
     if (
         shutil.which(omxplayer_exe) is None
-        or shutil.which(screenshot_exe) is None
         or shutil.which(irsend_exe) is None
     ):
         log(
             ERROR,
             "one or more following dependencies are not installed: "
             + omxplayer_exe
-            + " "
-            + screenshot_exe
             + " "
             + irsend_exe,
         )
@@ -74,6 +71,11 @@ def main():
     cycle_period_now = 0.0
 
     omx = subprocess.Popen([omxplayer_exe, abs_media_path], text=True)
+
+    # init screenshot module
+    lib.snapshot_bcm_init()
+    screenshot = lib.snapshot_bcm_init_snapshot()
+
     try:
         while True:
             # wait if current cycle period is less then defined
@@ -83,14 +85,10 @@ def main():
 
             screen_tic = time.perf_counter()
 
-            # take a screenshot of dispaly and save in RAM
+            # take a screenshot of dispaly
             log(INFO, "_____________________")
-            scr = subprocess.Popen([screenshot_exe], stdout=subprocess.PIPE)
-            shot = scr.communicate()[0]
-            screenshot_path = "/tmp/screen.jpg"
-            screenshot = open(screenshot_path, "wb")
-            screenshot.write(bytearray(shot))
-            screenshot.close()
+            lib.snapshot_bcm_take_snapshot(screenshot)
+            raw_image = ffi.buffer(screenshot.buffer, screenshot.size)
 
             screen_toc = time.perf_counter()
             log(
@@ -100,13 +98,15 @@ def main():
             )
 
             # calculate dominant color
-            color_r, color_g, color_b = get_dominant_clr(screenshot_path)
+            color_r, color_g, color_b = get_dominant_clr(raw_image, screenshot.width, screenshot.height)
 
             # change curent light bulb state
             bulb.change_state(color_r, color_g, color_b)
 
             # check if omxplayer is exit()
             if omx.poll() is not None:
+                lib.snapshot_bcm_free_snapshot(screenshot)
+                lib.snapshot_bcm_free()
                 exit()
 
             new_state_tic = time.perf_counter()
@@ -119,4 +119,6 @@ def main():
     except KeyboardInterrupt:
         # finish omxplayer if terminanted
         log(INFO, "finishing...")
+        lib.snapshot_bcm_free_snapshot(screenshot)
+        lib.snapshot_bcm_free()
         omx.communicate(input="q", timeout=3)

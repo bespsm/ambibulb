@@ -306,7 +306,7 @@ class EightyStateIRLightBulb:
         )
 
 
-def get_dominant_clr(img_path):
+def get_dominant_clr(raw_image, image_width, image_height):
     """calculates dominant color of input image path.
 
     Args:
@@ -316,7 +316,7 @@ def get_dominant_clr(img_path):
     """
     # open image
     image_open_tic = time.perf_counter()
-    opened_image = Image.open(img_path)
+    opened_image = Image.frombytes(mode="RGB", size=(image_width, image_height), data=raw_image)
     image_open_toc = time.perf_counter()
     log(
         INFO,
