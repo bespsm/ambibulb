@@ -20,14 +20,9 @@ setuptools.setup(
         "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
     ],
-    install_requires=[
-        "joblib>=0.11",
-        "numpy>=1.3.13",
-        "scipy>=0.19.1",
-        "threadpoolctl>=2.0.0",
-        "scikit-learn>=0.23.2",
-        "Pillow>=8.0.0",
-    ],
+    setup_requires=["cffi>=1.13"],
+    cffi_modules=["./snapshot_bcm/cffi_build.py:ffi"],
+    install_requires=[line.strip() for line in open("./requirements.txt").readlines()],
     entry_points = {
         'console_scripts': ['ambibulb=ambibulb.__main__:main'],
     },
