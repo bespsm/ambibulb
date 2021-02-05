@@ -1,0 +1,17 @@
+0.0.4
+- restricted platform for installation, setup.py
+- reduced screeenshot time, by replacing display screenshot module.
+Instead of external utility (screenshot) implement C library and build
+python::cffi module (snapshot_bcm/*) that communicates with Raspberry PI
+GPU driver API
+- add version log file, changelog.txt
+- add distributions manifest file, MANIFEST.in
+
+0.0.4rc2
+
+- first release
+- add fully functional utility, ambibulb/*
+- add building, distributing, and installing module, setup.py
+- add project descriptio, README.md
+- add project dependencies file., requirements.txt
+- add lirc config, conf/osram-led-bulb.conf
