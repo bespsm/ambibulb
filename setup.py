@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ambibulb",
-    version="0.0.4",
+    version="0.0.5rc1",
     author="Sergey B",
     license="MIT",
     author_email="dkc.sergey.88@hotmail.com",
@@ -32,9 +32,13 @@ setuptools.setup(
     install_requires=[
         line.strip() for line in open("./requirements.txt").readlines()
     ],
+    include_package_data=True,
     entry_points={
-        "console_scripts": ["ambibulb=ambibulb.__main__:main"],
+        "console_scripts": [
+            "ambibulb=ambibulb.__main__:main",
+            "ambibulb-config=ambibulb.ambibulb_config:main",
+        ],
     },
-    platforms='linux',
+    platforms="linux",
     python_requires=">=3.7",
 )
