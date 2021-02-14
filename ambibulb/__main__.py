@@ -11,6 +11,9 @@ from sys import stdout
 import subprocess
 import time
 import shutil
+from systemd.daemon import notify, Notification
+import signal
+import configparser
 from .snapshot_bcm import ffi, lib
 
 omxplayer_exe = "omxplayer"
@@ -76,6 +79,9 @@ def main():
     lib.snapshot_bcm_init()
     screenshot = lib.snapshot_bcm_init_snapshot()
 
+    # systemd notification
+    notify(Notification.READY)
+
     try:
         while True:
             # wait if current cycle period is less then defined
@@ -118,6 +124,7 @@ def main():
 
     except KeyboardInterrupt:
         # finish omxplayer if terminanted
+        notify(Notification.STOPPING)
         log(INFO, "finishing...")
         lib.snapshot_bcm_free_snapshot(screenshot)
         lib.snapshot_bcm_free()
