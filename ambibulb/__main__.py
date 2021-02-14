@@ -35,45 +35,43 @@ def main():
     if shutil.which(irsend_exe) is None:
         log(
             ERROR,
-            "lirc is not installed, please execute: " + "apt install lirc",
+            "lirc is not installed, please run: " + "apt install lirc",
         )
         return
 
     # parse input arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("media_path", help="path to media file", type=str)
-    parser.add_argument(
-        "-w",
-        "--with_white",
-        help="use white light in the algoritm",
-        action="store_true",
-    )
     parser.add_argument(
         "-c",
-        "--cycle_period",
-        help="min period color changing, sec. (Default = 0.4 sec)",
-        type=float,
-        default=0.4,
-    )
-    parser.add_argument(
-        "-v", "--verbosity", help="show timing steps", action="store_true"
-    )
-    parser.add_argument(
-        "-l",
-        "--lirc_conf",
-        help="lirc config name (Default = 'RGBLED')",
+        "--config_path",
+        help="path to config ini file",
         type=str,
-        default="RGBLED",
+        default=os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "ambibulb-config.ini"
+        ),
     )
     args = parser.parse_args()
 
-    if args.verbosity:
+    if not os.path.exists(args.config_path):
+        log(
+            ERROR,
+            "couldn't find config ini file: "
+            + args.config_path
+            + ". Please run ambibulb-config to create it.",
+        )
+        return
+
+    params = configparser.ConfigParser()
+    params.read(args.config_path)
+
+    if params["general"].getboolean("logging"):
         basicConfig(stream=stdout, level=DEBUG)
 
-    abs_media_path = os.path.abspath(args.media_path)
-    bulb = EightyStateIRLightBulb(args.with_white, args.lirc_conf)
+    bulb = EightyStateIRLightBulb(
+        params["general"].getboolean("with_white"), params["lirc"]["config_id"]
+    )
 
-    cycle_period = args.cycle_period
+    cycle_period = float(params["general"]["cycle_period"])
     cycle_period_now = 0.0
 
     # init screenshot module
@@ -124,3 +122,7 @@ def main():
         log(INFO, "finishing...")
         lib.snapshot_bcm_free_snapshot(screenshot)
         lib.snapshot_bcm_free()
+
+
+if __name__ == "__main__":
+    main()
