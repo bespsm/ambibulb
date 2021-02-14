@@ -16,23 +16,16 @@ import signal
 import configparser
 from .snapshot_bcm import ffi, lib
 
-omxplayer_exe = "omxplayer"
 irsend_exe = "irsend"
 
 
 def main():
     """ambibulb execution entry point."""
-    # check if all dependencies installed
-    if (
-        shutil.which(omxplayer_exe) is None
-        or shutil.which(irsend_exe) is None
-    ):
+
+    if shutil.which(irsend_exe) is None:
         log(
             ERROR,
-            "one or more following dependencies are not installed: "
-            + omxplayer_exe
-            + " "
-            + irsend_exe,
+            "lirc is not installed, please execute: " + "apt install lirc",
         )
         return
 
@@ -73,8 +66,6 @@ def main():
     cycle_period = args.cycle_period
     cycle_period_now = 0.0
 
-    omx = subprocess.Popen([omxplayer_exe, abs_media_path], text=True)
-
     # init screenshot module
     lib.snapshot_bcm_init()
     screenshot = lib.snapshot_bcm_init_snapshot()
@@ -104,16 +95,12 @@ def main():
             )
 
             # calculate dominant color
-            color_r, color_g, color_b = get_dominant_clr(raw_image, screenshot.width, screenshot.height)
+            color_r, color_g, color_b = get_dominant_clr(
+                raw_image, screenshot.width, screenshot.height
+            )
 
             # change curent light bulb state
             bulb.change_state(color_r, color_g, color_b)
-
-            # check if omxplayer is exit()
-            if omx.poll() is not None:
-                lib.snapshot_bcm_free_snapshot(screenshot)
-                lib.snapshot_bcm_free()
-                exit()
 
             new_state_tic = time.perf_counter()
             cycle_period_now = new_state_tic - screen_tic
@@ -122,10 +109,8 @@ def main():
                 "cycle time: " + "{:10.4f}".format(cycle_period_now),
             )
 
-    except KeyboardInterrupt:
-        # finish omxplayer if terminanted
+    finally:
         notify(Notification.STOPPING)
         log(INFO, "finishing...")
         lib.snapshot_bcm_free_snapshot(screenshot)
         lib.snapshot_bcm_free()
-        omx.communicate(input="q", timeout=3)
