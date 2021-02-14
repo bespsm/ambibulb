@@ -17,10 +17,20 @@ import configparser
 from .snapshot_bcm import ffi, lib
 
 irsend_exe = "irsend"
+run = True
+
+
+def signals_handler(signum, frame):
+    global run
+    run = False
 
 
 def main():
     """ambibulb execution entry point."""
+
+    global run
+    signal.signal(signal.SIGINT, signals_handler)
+    signal.signal(signal.SIGTERM, signals_handler)
 
     if shutil.which(irsend_exe) is None:
         log(
@@ -74,7 +84,7 @@ def main():
     notify(Notification.READY)
 
     try:
-        while True:
+        while run:
             # wait if current cycle period is less then defined
             sleep_time = cycle_period - cycle_period_now
             if (sleep_time) > 0.0:
