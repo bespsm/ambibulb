@@ -30,7 +30,7 @@ class EightyStateIRLightBulb:
         off: the flag defines if the light bulb is OFF.
         clr_state: current color state of the light bulb.
         sender_proc: irsend process execution object.
-        lirc_conf: lirc config name.
+        lirc_source_id: lirc config name.
     """
 
     brightess_clr_to_positions = {
@@ -138,7 +138,7 @@ class EightyStateIRLightBulb:
         "BLACK",
     )
 
-    def __init__(self, with_white, lirc_conf):
+    def __init__(self, with_white, lirc_source_id):
         """Initialize the instance of the class.
 
         To syncronize real light bulb color state,
@@ -146,7 +146,7 @@ class EightyStateIRLightBulb:
 
         Args:
             with_white: the flag defines if white color will be used.
-            lirc_conf: lirc config name.
+            lirc_source_id: lirc source id, lirc.conf is available as name.
         """
 
         self.init_brightess_clr_to_positions = (
@@ -171,7 +171,7 @@ class EightyStateIRLightBulb:
         self.off = False
         self.clr_state = "WHITE"
         self.sender_proc = None
-        self.lirc_conf = lirc_conf
+        self.lirc_source_id = lirc_source_id
 
     def __action_detector(self, red_c, green_c, blue_c):
         """calculates required color and brightness.
@@ -291,7 +291,7 @@ class EightyStateIRLightBulb:
 
         # there are codes to apply
         if len(codes) != 0:
-            terminal_cmd = ["irsend", "SEND_ONCE", self.lirc_conf]
+            terminal_cmd = ["irsend", "SEND_ONCE", self.lirc_source_id]
             terminal_cmd.extend(codes)
             log(DEBUG, "codes: " + " ".join(map(str, terminal_cmd)))
             # wait prev. process to finish
