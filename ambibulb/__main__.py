@@ -91,13 +91,13 @@ def main():
             screen_tic = time.perf_counter()
 
             # take a screenshot of dispaly
-            log(INFO, "_____________________")
+            log(DEBUG, "_____________________")
             lib.snapshot_bcm_take_snapshot(screenshot)
             raw_image = ffi.buffer(screenshot.buffer, screenshot.size)
 
             screen_toc = time.perf_counter()
             log(
-                INFO,
+                DEBUG,
                 "screenshot time: "
                 + "{:10.4f}".format(screen_toc - screen_tic),
             )
@@ -113,7 +113,7 @@ def main():
             new_state_tic = time.perf_counter()
             cycle_period_now = new_state_tic - screen_tic
             log(
-                INFO,
+                DEBUG,
                 "cycle time: " + "{:10.4f}".format(cycle_period_now),
             )
 

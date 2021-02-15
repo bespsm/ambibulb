@@ -184,7 +184,7 @@ class EightyStateIRLightBulb:
             tuple(int, str): required color and brightness states.
         """
         log(
-            INFO,
+            DEBUG,
             "new color: "
             + str(red_c)
             + ":"
@@ -210,8 +210,8 @@ class EightyStateIRLightBulb:
                     brightess = brightess_clr[0]
                     clr = brightess_clr[1]
 
-        log(INFO, "new brightnes: " + str(brightess))
-        log(INFO, "new color: " + clr)
+        log(DEBUG, "new brightnes: " + str(brightess))
+        log(DEBUG, "new color: " + clr)
         return brightess, clr
 
     def __change_brightnes_cmds(self, new_state):
@@ -241,7 +241,7 @@ class EightyStateIRLightBulb:
                     commands.extend(["HIGHER"])
                 else:
                     commands.extend(["LOWER"])
-            log(INFO, "new brightnes state: " + str(new_state))
+            log(DEBUG, "new brightnes state: " + str(new_state))
             self.br_state = new_state
         return commands
 
@@ -258,7 +258,7 @@ class EightyStateIRLightBulb:
         commands = []
         if self.clr_state != new_state and new_state != "BLACK":
             commands.extend([new_state])
-            log(INFO, "new color state: " + str(new_state))
+            log(DEBUG, "new color state: " + str(new_state))
             self.clr_state = new_state
         return commands
 
@@ -277,7 +277,7 @@ class EightyStateIRLightBulb:
         )
         action_toc = time.perf_counter()
         log(
-            INFO,
+            DEBUG,
             "action detection time: "
             + "{:10.4f}".format(action_toc - action_tic),
         )
@@ -293,7 +293,7 @@ class EightyStateIRLightBulb:
         if len(codes) != 0:
             terminal_cmd = ["irsend", "SEND_ONCE", self.lirc_source_id]
             terminal_cmd.extend(codes)
-            log(DEBUG, "codes: " + " ".join(map(str, terminal_cmd)))
+            log(INFO, "codes: " + " ".join(map(str, terminal_cmd)))
             # wait prev. process to finish
             if self.sender_proc is not None:
                 self.sender_proc.communicate()
@@ -301,7 +301,7 @@ class EightyStateIRLightBulb:
             self.sender_proc = subprocess.Popen(terminal_cmd)
         send_tic = time.perf_counter()
         log(
-            INFO,
+            DEBUG,
             "send actions time: " + "{:10.4f}".format(send_tic - action_toc),
         )
 
@@ -319,7 +319,7 @@ def get_dominant_clr(raw_image, image_width, image_height):
     opened_image = Image.frombytes(mode="RGB", size=(image_width, image_height), data=raw_image)
     image_open_toc = time.perf_counter()
     log(
-        INFO,
+        DEBUG,
         "image open time: "
         + "{:10.4f}".format(image_open_toc - image_open_tic),
     )
@@ -328,7 +328,7 @@ def get_dominant_clr(raw_image, image_width, image_height):
     opened_image.thumbnail((350, 350), Image.BICUBIC)
     image_resize_tic = time.perf_counter()
     log(
-        INFO,
+        DEBUG,
         "image resize time: "
         + "{:10.4f}".format(image_resize_tic - image_open_toc),
     )
@@ -347,7 +347,7 @@ def get_dominant_clr(raw_image, image_width, image_height):
     dominant = clt.cluster_centers_.astype("uint8")
     dominant_color_toc = time.perf_counter()
     log(
-        INFO,
+        DEBUG,
         "dominant color time: "
         + "{:10.4f}".format(dominant_color_toc - image_resize_tic),
     )
