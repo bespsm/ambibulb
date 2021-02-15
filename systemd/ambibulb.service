@@ -1,0 +1,9 @@
+[Unit]
+Description=Ambibulb controls the color of RC lights based on donimant color of display
+
+[Service]
+ExecStart=/bin/bash -c 'exec ambibulb'
+Type=notify
+
+[Install]
+WantedBy=multi-user.target
