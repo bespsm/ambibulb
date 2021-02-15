@@ -64,8 +64,7 @@ def main():
     params = configparser.ConfigParser()
     params.read(args.config_path)
 
-    if params["general"].getboolean("logging"):
-        basicConfig(stream=stdout, level=DEBUG)
+    basicConfig(level=int(params["general"]["logging_level"]))
 
     bulb = EightyStateIRLightBulb(
         params["general"].getboolean("with_white"), params["lirc"]["config_id"]
