@@ -5,11 +5,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ambibulb",
-    version="0.0.5rc1",
+    version="0.0.5",
     author="Sergey B",
     license="MIT",
     author_email="dkc.sergey.88@hotmail.com",
-    description="Raspberry PI utility that controls color of your IR LED light bulb based on the dominant color of the currently played video",
+    description="Utility controls the color of RC lights based on the dominant color of displayed image.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/bespsm/ambibulb",
