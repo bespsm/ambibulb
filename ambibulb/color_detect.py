@@ -44,7 +44,7 @@ def get_dominant_clr(raw_image, image_width, image_height):
 
     # calculate dominant color
     clt = MiniBatchKMeans(
-        n_clusters=1, max_iter=10, verbose=0, compute_labels=False, tol=0.5
+        n_clusters=1, max_iter=10, verbose=0, compute_labels=False, tol=0.1
     )
     clt.fit(reshaped_image)
     dominant = clt.cluster_centers_.astype("uint8")
