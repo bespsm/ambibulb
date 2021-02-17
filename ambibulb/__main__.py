@@ -3,7 +3,7 @@
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
 
 
-from . import EightyStateIRLightBulb, get_dominant_clr
+from . import ir_light_bulb, color_detect
 from logging import log, INFO, DEBUG, ERROR, basicConfig
 import argparse
 import os
@@ -66,7 +66,7 @@ def main():
 
     basicConfig(level=int(params["general"]["logging_level"]))
 
-    bulb = EightyStateIRLightBulb(
+    bulb = ir_light_bulb.EightyStateIRLightBulb(
         params["general"].getboolean("with_white"), params["lirc"]["config_id"]
     )
 
@@ -102,7 +102,7 @@ def main():
             )
 
             # calculate dominant color
-            color_r, color_g, color_b = get_dominant_clr(
+            color_r, color_g, color_b = color_detect.get_dominant_clr(
                 raw_image, screenshot.width, screenshot.height
             )
 
