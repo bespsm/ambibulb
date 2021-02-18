@@ -5,3 +5,5 @@ threadpoolctl>=2.0.0
 scikit-learn>=0.23.2
 Pillow>=8.0.0
 cffi>=1.13
+whiptail-dialogs>=0.3.2
+systemd>=0.16.1

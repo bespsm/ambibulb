@@ -1,4 +1,18 @@
+0.0.5
+
+- add Makefile for easy configuration/deployment. 
+It supports following commands: install, configure, build, unistall, purge,
+clean
+- add configuration script, 'ambibulb-config'. It allows to to change all
+setting in interactive (whiptail) mode
+- changed start/stop commands now it can be done by systemctl commands
+(README.md)
+- removed omxplyer from run dependencies. ambibulb runs as background service
+- changed current status command (README.md). Added configurable logging level:
+NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 0.0.4
+
 - restricted platform for installation, setup.py
 - reduced screeenshot time, by replacing display screenshot module.
 Instead of external utility (screenshot) implement C library and build

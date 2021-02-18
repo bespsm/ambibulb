@@ -3,7 +3,7 @@
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
 
 
-from . import EightyStateIRLightBulb, get_dominant_clr
+from . import ir_light_bulb, color_detect
 from logging import log, INFO, DEBUG, ERROR, basicConfig
 import argparse
 import os
@@ -11,73 +11,77 @@ from sys import stdout
 import subprocess
 import time
 import shutil
+from systemd.daemon import notify, Notification
+import signal
+import configparser
 from .snapshot_bcm import ffi, lib
 
-omxplayer_exe = "omxplayer"
 irsend_exe = "irsend"
+run = True
+
+
+def signals_handler(signum, frame):
+    global run
+    run = False
 
 
 def main():
     """ambibulb execution entry point."""
-    # check if all dependencies installed
-    if (
-        shutil.which(omxplayer_exe) is None
-        or shutil.which(irsend_exe) is None
-    ):
+
+    global run
+    signal.signal(signal.SIGINT, signals_handler)
+    signal.signal(signal.SIGTERM, signals_handler)
+
+    if shutil.which(irsend_exe) is None:
         log(
             ERROR,
-            "one or more following dependencies are not installed: "
-            + omxplayer_exe
-            + " "
-            + irsend_exe,
+            "lirc is not installed, please run: " + "apt install lirc",
         )
         return
 
     # parse input arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("media_path", help="path to media file", type=str)
-    parser.add_argument(
-        "-w",
-        "--with_white",
-        help="use white light in the algoritm",
-        action="store_true",
-    )
     parser.add_argument(
         "-c",
-        "--cycle_period",
-        help="min period color changing, sec. (Default = 0.4 sec)",
-        type=float,
-        default=0.4,
-    )
-    parser.add_argument(
-        "-v", "--verbosity", help="show timing steps", action="store_true"
-    )
-    parser.add_argument(
-        "-l",
-        "--lirc_conf",
-        help="lirc config name (Default = 'RGBLED')",
+        "--config_path",
+        help="path to config ini file",
         type=str,
-        default="RGBLED",
+        default=os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "ambibulb-config.ini"
+        ),
     )
     args = parser.parse_args()
 
-    if args.verbosity:
-        basicConfig(stream=stdout, level=DEBUG)
+    if not os.path.exists(args.config_path):
+        log(
+            ERROR,
+            "couldn't find config ini file: "
+            + args.config_path
+            + ". Please run ambibulb-config to create it.",
+        )
+        return
 
-    abs_media_path = os.path.abspath(args.media_path)
-    bulb = EightyStateIRLightBulb(args.with_white, args.lirc_conf)
+    params = configparser.ConfigParser()
+    params.read(args.config_path)
 
-    cycle_period = args.cycle_period
+    basicConfig(level=int(params["general"]["logging_level"]))
+
+    bulb = ir_light_bulb.EightyStateIRLightBulb(
+        params["general"].getboolean("with_white"), params["lirc"]["config_id"]
+    )
+
+    cycle_period = float(params["general"]["cycle_period"])
     cycle_period_now = 0.0
-
-    omx = subprocess.Popen([omxplayer_exe, abs_media_path], text=True)
 
     # init screenshot module
     lib.snapshot_bcm_init()
     screenshot = lib.snapshot_bcm_init_snapshot()
 
+    # systemd notification
+    notify(Notification.READY)
+
     try:
-        while True:
+        while run:
             # wait if current cycle period is less then defined
             sleep_time = cycle_period - cycle_period_now
             if (sleep_time) > 0.0:
@@ -86,39 +90,38 @@ def main():
             screen_tic = time.perf_counter()
 
             # take a screenshot of dispaly
-            log(INFO, "_____________________")
+            log(DEBUG, "_____________________")
             lib.snapshot_bcm_take_snapshot(screenshot)
             raw_image = ffi.buffer(screenshot.buffer, screenshot.size)
 
             screen_toc = time.perf_counter()
             log(
-                INFO,
+                DEBUG,
                 "screenshot time: "
                 + "{:10.4f}".format(screen_toc - screen_tic),
             )
 
             # calculate dominant color
-            color_r, color_g, color_b = get_dominant_clr(raw_image, screenshot.width, screenshot.height)
+            color_r, color_g, color_b = color_detect.get_dominant_clr(
+                raw_image, screenshot.width, screenshot.height
+            )
 
             # change curent light bulb state
             bulb.change_state(color_r, color_g, color_b)
 
-            # check if omxplayer is exit()
-            if omx.poll() is not None:
-                lib.snapshot_bcm_free_snapshot(screenshot)
-                lib.snapshot_bcm_free()
-                exit()
-
             new_state_tic = time.perf_counter()
             cycle_period_now = new_state_tic - screen_tic
             log(
-                INFO,
+                DEBUG,
                 "cycle time: " + "{:10.4f}".format(cycle_period_now),
             )
 
-    except KeyboardInterrupt:
-        # finish omxplayer if terminanted
+    finally:
+        notify(Notification.STOPPING)
         log(INFO, "finishing...")
         lib.snapshot_bcm_free_snapshot(screenshot)
         lib.snapshot_bcm_free()
-        omx.communicate(input="q", timeout=3)
+
+
+if __name__ == "__main__":
+    main()

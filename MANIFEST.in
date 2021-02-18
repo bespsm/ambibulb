@@ -1,4 +1,2 @@
-include README.md requirements.txt setup.py
-recursive-include conf *.conf
+recursive-include lirc_conf *.conf
 recursive-include ambibulb *.py
-recursive-include snapshot_bcm *.h *.py *.c
