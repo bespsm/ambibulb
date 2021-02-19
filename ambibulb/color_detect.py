@@ -2,42 +2,23 @@
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
 
 
-from logging import log, INFO, DEBUG
+from logging import log, DEBUG
 import time
 from sklearn.cluster import MiniBatchKMeans
 import numpy as np
-from PIL import Image
 
 
-def get_dominant_clr(raw_image, image_width, image_height):
-    """calculates dominant color of input image path.
+def get_dominant_clr(image):
+    """calculates dominant color of input image object.
 
     Args:
-        img_path: input image path.
+        image: input image object.
     Returns:
         tuple(int, int, int): position of dominant color on RGB plane.
     """
-    # open image
-    image_open_tic = time.perf_counter()
-    opened_image = Image.frombytes(mode="RGB", size=(image_width, image_height), data=raw_image)
-    image_open_toc = time.perf_counter()
-    log(
-        DEBUG,
-        "image open time: "
-        + "{:10.4f}".format(image_open_toc - image_open_tic),
-    )
-
-    # resize image
-    opened_image.thumbnail((350, 350), Image.BICUBIC)
-    image_resize_tic = time.perf_counter()
-    log(
-        DEBUG,
-        "image resize time: "
-        + "{:10.4f}".format(image_resize_tic - image_open_toc),
-    )
-
+    dominant_color_tic = time.perf_counter()
     # reshape image to 1-dimensional array
-    np_image = np.array(opened_image)
+    np_image = np.array(image)
     reshaped_image = np_image.reshape(
         (np_image.shape[0] * np_image.shape[1], 3)
     )
@@ -52,6 +33,6 @@ def get_dominant_clr(raw_image, image_width, image_height):
     log(
         DEBUG,
         "dominant color time: "
-        + "{:10.4f}".format(dominant_color_toc - image_resize_tic),
+        + "{:10.4f}".format(dominant_color_toc - dominant_color_tic),
     )
     return dominant[0][0], dominant[0][1], dominant[0][2]
