@@ -30,12 +30,12 @@ all:
 
 build:
 	@echo "building ambubulb wheel package..."
-	pip3 install --user wheel
+	pip3 install wheel
 	${PYTHON} setup.py sdist bdist_wheel
 
 install: build
 	@echo "install ambubulb package..."
-	pip3 install --user dist/ambibulb-*.whl
+	pip3 install dist/ambibulb-*.whl
 
 configure:
 	@echo "configure ambibulb..."

@@ -3,7 +3,7 @@
 # Copyright (c) 2021 Sergey B <dkc.sergey.88@hotmail.com>
 
 
-from . import ir_light_bulb, color_detect
+from . import ir_light_bulb, color_detect, image_compose
 from logging import log, INFO, DEBUG, ERROR, basicConfig
 import argparse
 import os
@@ -73,6 +73,10 @@ def main():
     cycle_period = float(params["general"]["cycle_period"])
     cycle_period_now = 0.0
 
+    cropping_mode = image_compose.CroppingMode(
+        params["general"]["cropping_mode"]
+    )
+
     # init screenshot module
     lib.snapshot_bcm_init()
     screenshot = lib.snapshot_bcm_init_snapshot()
@@ -101,9 +105,17 @@ def main():
                 + "{:10.4f}".format(screen_toc - screen_tic),
             )
 
+            # compose image
+            compoed_image = image_compose.image_compose(
+                raw_image,
+                screenshot.width,
+                screenshot.height,
+                cropping_mode
+            )
+
             # calculate dominant color
             color_r, color_g, color_b = color_detect.get_dominant_clr(
-                raw_image, screenshot.width, screenshot.height
+                compoed_image
             )
 
             # change curent light bulb state

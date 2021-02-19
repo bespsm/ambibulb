@@ -5,11 +5,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ambibulb",
-    version="0.0.5",
+    version="0.0.51",
     author="Sergey B",
     license="MIT",
     author_email="dkc.sergey.88@hotmail.com",
-    description="Utility controls the color of RC lights based on the dominant color of displayed image.",
+    description="Python utility controls the color of RC lights based on the dominant color of an image on your screen.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/bespsm/ambibulb",
