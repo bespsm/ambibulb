@@ -69,11 +69,11 @@ def main():
                 general_opt_selected = w.menu(
                     "General settings menu.",
                     [
-                        ("0", "If use white in color detection algoritm."),
-                        ("1", "Enter color detection cycle period."),
-                        ("2", "Select light source."),
-                        ("3", "Select logging level."),
-                        ("4", "Select screen area to analyze."),
+                        ("0", "If use white in color detection algoritm. Current: " + params["general"]["with_white"]),
+                        ("1", "Enter color detection cycle period. Current: " + params["general"]["cycle_period"]),
+                        ("2", "Select light source. Current: " + params["general"]["source"]),
+                        ("3", "Select logging level. Current: " + params["general"]["logging_level"]),
+                        ("4", "Select screen area to analyze. Current: " + params["general"]["cropping_mode"]),
                         ("5", "Back."),
                     ],
                 )[0]
