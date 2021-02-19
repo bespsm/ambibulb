@@ -1,3 +1,8 @@
+0.0.51
+
+- add option to analyze only specific area of screen (LEFT, TOP, RIGHT, BOTTOM)
+- ambibulb_config: shows current values of the settings
+
 0.0.5
 
 - add Makefile for easy configuration/deployment. 
