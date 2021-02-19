@@ -1,8 +1,8 @@
 # AMBIBULB
 
- Ambibulb attempts to provide the similar experience to Ambilight® (Philips TV's feature that projects color onto the wall behind a TV) using Raspberry PI and a simple IR remote controlled LED light bulb. [**Please watch the demo.**](https://youtu.be/R3JeVooaytU)
+ Ambibulb attempts to provide the similar experience to Ambilight® (Philips TV's feature that projects color onto the wall behind a TV) using Raspberry PI and an IR remote controlled LED light bulb. [**Please watch the demo.**](https://youtu.be/R3JeVooaytU)
 
-*ambibulb* controls the color of RC lights based based on the dominant color of displayed image. This can enhance your viewing experience or make your party more colorful 🌈.
+*ambibulb* controls the color of RC lights based on the dominant color of an image on your screen. This can enhance your viewing experience or just make your party more colorful 🌈.
 
 ### HARDWARE
 * Raspberry PI (tested on 3B+)
@@ -13,7 +13,7 @@
 * wiring
 
 ### SOFTWARE DEPENDENCIES
-* Raspberry Pi OS (10 buster, or any other RPI compatibe OS)
+* Raspberry Pi OS (10 buster, or any other RPI compatible OS)
 * LIRC (Linux Infrared Remote Control)
 
 ### SETUP AND INSTALLATION
