@@ -8,6 +8,7 @@ import os, subprocess
 from whiptail import Whiptail
 import configparser
 from shutil import copyfile
+from . import image_compose
 
 
 config_path = os.path.join(
@@ -36,6 +37,7 @@ def main():
             "cycle_period": 0.3,
             "source": "lirc",
             "logging_level": 20,
+            "cropping_mode": image_compose.CroppingMode.FULL.name
         }
         default_params["lirc"] = {
             "config_path": list(lirc_confpath_id_map.keys())[0],
@@ -71,7 +73,8 @@ def main():
                         ("1", "Enter color detection cycle period."),
                         ("2", "Select light source."),
                         ("3", "Select logging level."),
-                        ("4", "Back."),
+                        ("4", "Select screen area to analyze."),
+                        ("5", "Back."),
                     ],
                 )[0]
 
@@ -123,8 +126,17 @@ def main():
                         w.msgbox("Logging level was not selected.")
                         continue
                     params["general"]["logging_level"] = result[0]
+                elif general_opt_selected == "4":
+                    result = w.radiolist(
+                        "Press SPACE to select screen area to analyze. Press TAB to switch to yes/no dialog: ",
+                        [name for name, member in image_compose.CroppingMode.__members__.items()],
+                    )[0]
+                    if len(result) == 0:
+                        w.msgbox("Screen area was not selected.")
+                        continue
+                    params["general"]["cropping_mode"] = result[0]
                 else:
-                    # general_opt_selected is "" or "4"
+                    # general_opt_selected is "" or "5"
                     # go to main menu
                     break
 
