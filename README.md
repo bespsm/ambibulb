@@ -33,7 +33,7 @@ $ apt install lirc
 ```
 or using pip (recommended in venv) and configure locally:
 ```
- $ python3 -m pip install --user ambibulb
+ $ python3 -m pip install ambibulb
  $ wget https://github.com/bespsm/ambibulb/archive/main.zip
  $ unzip main.zip
  $ cd ambibulb-main
